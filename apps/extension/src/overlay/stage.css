@@ -1,0 +1,233 @@
+:host {
+  all: initial;
+}
+
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  overflow: hidden;
+  font-family:
+    ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #2b1a10;
+  -webkit-font-smoothing: antialiased;
+}
+.layer.closing {
+  animation: ms-fade-out 250ms ease-in both;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(30, 14, 4, 0.38);
+  animation: ms-fade-in 250ms ease-out both;
+}
+
+.flash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at var(--x) var(--y),
+    rgba(255, 255, 255, 0.95) 0,
+    rgba(255, 90, 60, 0.6) 18%,
+    rgba(255, 30, 30, 0.25) 45%,
+    rgba(255, 0, 0, 0) 75%
+  );
+  animation: ms-flash 550ms ease-out both;
+}
+
+.handprint {
+  position: absolute;
+  width: var(--size, 170px);
+  color: rgba(220, 38, 38, 0.55);
+  transform: translate(-50%, -50%) rotate(-20deg);
+  pointer-events: none;
+  animation: ms-print 4s ease-out both;
+  mix-blend-mode: multiply;
+}
+.handprint svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.burst {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 64px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: #ffd43b;
+  -webkit-text-stroke: 3px #2b1a10;
+  paint-order: stroke fill;
+  text-shadow: 4px 5px 0 #c92a2a;
+  pointer-events: none;
+  white-space: nowrap;
+  animation: ms-burst 1.4s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+.burst-2 {
+  font-size: 76px;
+}
+.burst-3 {
+  font-size: 92px;
+}
+
+.card {
+  position: absolute;
+  top: 50%;
+  left: 25%;
+  transform: translate(-50%, -50%);
+  width: min(360px, 42vw);
+  box-sizing: border-box;
+  padding: 24px;
+  border-radius: 20px;
+  background: #fffaf2;
+  border: 3px solid #2b1a10;
+  box-shadow: 8px 8px 0 #2b1a10;
+  animation: ms-card-in 380ms cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+.card.leaving {
+  animation: ms-card-out 200ms ease-in both;
+}
+.card h2 {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1.1;
+  color: #c92a2a;
+}
+.card p {
+  margin: 0 0 8px;
+  font-size: 16px;
+  line-height: 1.45;
+}
+.card .note {
+  font-size: 13px;
+  color: #7a5a44;
+}
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+.actions button {
+  all: unset;
+  box-sizing: border-box;
+  cursor: pointer;
+  text-align: center;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 2px solid #2b1a10;
+  transition:
+    transform 80ms ease,
+    box-shadow 80ms ease;
+}
+.actions button:focus-visible {
+  outline: 3px solid #4dabf7;
+  outline-offset: 2px;
+}
+.actions .primary {
+  background: #ffd43b;
+  box-shadow: 3px 3px 0 #2b1a10;
+}
+.actions .primary:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #2b1a10;
+}
+.actions .secondary {
+  background: transparent;
+  font-weight: 600;
+}
+.actions .secondary:hover {
+  background: rgba(43, 26, 16, 0.06);
+}
+
+@media (max-width: 720px) {
+  .card {
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 32px);
+  }
+  .burst {
+    font-size: 48px;
+  }
+}
+
+@keyframes ms-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes ms-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes ms-flash {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes ms-print {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(-20deg) scale(1.4);
+  }
+  8% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(-20deg) scale(1);
+  }
+  70% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0.35;
+    transform: translate(-50%, -50%) rotate(-20deg) scale(1);
+  }
+}
+@keyframes ms-burst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.2) rotate(-12deg);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1) rotate(-6deg);
+  }
+  75% {
+    opacity: 1;
+    transform: translate(-50%, -60%) scale(1) rotate(-6deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -75%) scale(0.95) rotate(-6deg);
+  }
+}
+@keyframes ms-card-in {
+  from {
+    opacity: 0;
+    margin-top: 30px;
+  }
+}
+@keyframes ms-card-out {
+  to {
+    opacity: 0;
+    margin-top: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .burst,
+  .card {
+    animation-duration: 1ms;
+  }
+}

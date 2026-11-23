@@ -1,0 +1,24 @@
+{
+  "name": "monkeyslap",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Set a time limit on distracting sites. Go over it and a monkey slaps you.",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @monkeyslap/extension",
+    "build": "npm run build -w @monkeyslap/extension",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p packages/core && tsc -p packages/characters && tsc -p apps/extension",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3",
+    "vitest": "^5.1.1"
+  }
+}

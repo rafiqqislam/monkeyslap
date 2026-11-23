@@ -1,0 +1,10 @@
+{
+  "name": "@monkeyslap/core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Platform-free rules: limits, usage accounting, streak-ready daily totals, and what happens when a limit is hit.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

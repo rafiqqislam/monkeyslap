@@ -1,0 +1,13 @@
+{
+  "name": "@monkeyslap/characters",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Character packs (monkey, and later other animals) and the renderers that animate them.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@monkeyslap/core": "*"
+  }
+}

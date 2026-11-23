@@ -1,0 +1,10 @@
+{
+  "id": "monkey",
+  "name": "Monkey",
+  "renderer": "css-svg",
+  "size": { "width": 300, "height": 400 },
+  "hitPoint": { "x": 0.063, "y": 0.62 },
+  "facing": "left",
+  "moves": ["idle", "enter", "windup", "slap", "taunt", "exit"],
+  "sounds": { "slap": "synth:slap" }
+}

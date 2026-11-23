@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" aria-hidden="true">
+  <!--
+    Placeholder monkey, drawn by hand in SVG. Facing left.
+    Class names are the hooks the CSS animations use:
+      ms-body (whole figure), ms-head, ms-arm (slapping arm, shoulder at 125,245),
+      ms-eye, ms-mouth-closed, ms-mouth-open, ms-brows
+  -->
+  <g class="ms-body">
+    <!-- tail -->
+    <path d="M232 330 C 300 335, 305 235, 262 222 C 236 214, 236 252, 258 250"
+          fill="none" stroke="#5C3519" stroke-width="14" stroke-linecap="round"/>
+
+    <!-- back arm -->
+    <path d="M226 245 L 246 325" stroke="#5C3519" stroke-width="30" stroke-linecap="round"/>
+    <circle cx="248" cy="336" r="17" fill="#E9BA8A"/>
+
+    <!-- legs and feet -->
+    <ellipse cx="140" cy="370" rx="30" ry="22" fill="#6B3F22"/>
+    <ellipse cx="208" cy="370" rx="30" ry="22" fill="#6B3F22"/>
+    <ellipse cx="128" cy="386" rx="24" ry="11" fill="#E9BA8A"/>
+    <ellipse cx="220" cy="386" rx="24" ry="11" fill="#E9BA8A"/>
+
+    <!-- torso -->
+    <ellipse cx="175" cy="292" rx="70" ry="82" fill="#7A4A2A"/>
+    <ellipse cx="167" cy="304" rx="44" ry="58" fill="#F2C99B"/>
+
+    <g class="ms-head">
+      <!-- ears -->
+      <circle cx="90" cy="142" r="30" fill="#7A4A2A"/>
+      <circle cx="90" cy="142" r="17" fill="#E0A27A"/>
+      <circle cx="250" cy="138" r="30" fill="#7A4A2A"/>
+      <circle cx="250" cy="138" r="17" fill="#E0A27A"/>
+
+      <!-- head and hair tuft -->
+      <circle cx="170" cy="140" r="80" fill="#7A4A2A"/>
+      <path d="M150 64 C 156 40, 172 38, 170 62 C 178 44, 196 48, 186 68 Z" fill="#7A4A2A"/>
+
+      <!-- face mask -->
+      <circle cx="140" cy="128" r="34" fill="#F2C99B"/>
+      <circle cx="192" cy="128" r="34" fill="#F2C99B"/>
+      <ellipse cx="162" cy="172" rx="56" ry="38" fill="#F2C99B"/>
+
+      <!-- eyes -->
+      <g class="ms-eye">
+        <ellipse cx="139" cy="126" rx="14" ry="17" fill="#fff"/>
+        <circle cx="133" cy="129" r="7.5" fill="#2B1A10"/>
+        <circle cx="131" cy="126" r="2.2" fill="#fff"/>
+      </g>
+      <g class="ms-eye">
+        <ellipse cx="189" cy="126" rx="14" ry="17" fill="#fff"/>
+        <circle cx="183" cy="129" r="7.5" fill="#2B1A10"/>
+        <circle cx="181" cy="126" r="2.2" fill="#fff"/>
+      </g>
+
+      <!-- mischievous brows -->
+      <g class="ms-brows" stroke="#4A2A14" stroke-width="6" stroke-linecap="round">
+        <path d="M120 101 L 153 110"/>
+        <path d="M174 110 L 207 101"/>
+      </g>
+
+      <!-- nose -->
+      <ellipse cx="153" cy="160" rx="3.2" ry="4" fill="#6B3F22"/>
+      <ellipse cx="167" cy="160" rx="3.2" ry="4" fill="#6B3F22"/>
+
+      <!-- mouth -->
+      <path class="ms-mouth-closed" d="M130 180 Q 160 204 192 176"
+            fill="none" stroke="#2B1A10" stroke-width="5" stroke-linecap="round"/>
+      <g class="ms-mouth-open">
+        <path d="M128 176 Q 160 222 194 172 Q 160 186 128 176 Z" fill="#7E2323"/>
+        <path d="M144 196 Q 160 210 178 194 Q 160 200 144 196 Z" fill="#E46B6B"/>
+        <path d="M134 178 L 188 175 L 186 182 L 136 184 Z" fill="#fff"/>
+      </g>
+    </g>
+
+    <!-- slapping arm: drawn hanging down, rotated around the shoulder (125,245) -->
+    <g class="ms-arm">
+      <path d="M125 245 L 111 328" stroke="#7A4A2A" stroke-width="32" stroke-linecap="round"/>
+      <g class="ms-hand">
+        <ellipse cx="96" cy="356" rx="9" ry="16" fill="#E9BA8A" transform="rotate(25 96 356)"/>
+        <ellipse cx="108" cy="370" rx="8.5" ry="18" fill="#E9BA8A"/>
+        <ellipse cx="121" cy="368" rx="8.5" ry="17" fill="#E9BA8A" transform="rotate(-12 121 368)"/>
+        <ellipse cx="132" cy="360" rx="8" ry="15" fill="#E9BA8A" transform="rotate(-28 132 360)"/>
+        <circle cx="113" cy="348" r="24" fill="#E9BA8A"/>
+        <ellipse cx="92" cy="338" rx="8" ry="14" fill="#E9BA8A" transform="rotate(50 92 338)"/>
+      </g>
+    </g>
+  </g>
+</svg>

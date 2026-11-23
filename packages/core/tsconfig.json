@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // Core must run anywhere (extension, Android, server), so no Chrome or Node types.
+    // DOM is kept only for globals every runtime has, like URL.
+    "types": []
+  },
+  "include": ["src", "test"]
+}
