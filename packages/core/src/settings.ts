@@ -18,20 +18,38 @@ export interface Settings {
   reslapMinutes: number;
 }
 
-export const SUGGESTED_SITES = [
+/**
+ * Limited from the moment the extension is installed. The extension asks Chrome
+ * for access to these at install time, so keep this list in sync with
+ * host_permissions in apps/extension/manifest.config.ts.
+ */
+export const DEFAULT_SITES = [
   "youtube.com",
-  "instagram.com",
-  "x.com",
-  "tiktok.com",
-  "reddit.com",
   "facebook.com",
+  "tiktok.com",
+  "instagram.com",
+  "reddit.com",
+  "x.com",
 ] as const;
 
-export const DEFAULT_DAILY_MINUTES = 30;
+/** Shown as one-click buttons in the popup when not already in the list. */
+export const SUGGESTED_SITES = DEFAULT_SITES;
+
+export const DEFAULT_DAILY_MINUTES = 5;
+
+/**
+ * Until a person has been slapped once, every site slaps after this many minutes,
+ * so new users see what MonkeySlap does right away. After that, normal limits apply.
+ */
+export const FIRST_SLAP_MINUTES = 1;
 
 export const DEFAULT_SETTINGS: Settings = {
   version: 1,
-  limits: [],
+  limits: DEFAULT_SITES.map((domain) => ({
+    domain,
+    dailyMinutes: DEFAULT_DAILY_MINUTES,
+    enabled: true,
+  })),
   characterId: "monkey",
   characterScale: 1,
   sound: true,
@@ -51,8 +69,11 @@ export function migrateSettings(raw: unknown): Settings {
   const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
   const seen = new Set<string>();
   const limits: SiteLimit[] = [];
-  if (Array.isArray(r.limits)) {
-    for (const item of r.limits) {
+  // No list saved yet (a new install) → the default sites. A list the user has
+  // emptied stays empty.
+  const rawLimits: unknown[] = Array.isArray(r.limits) ? r.limits : DEFAULT_SETTINGS.limits;
+  {
+    for (const item of rawLimits) {
       const l = (item ?? {}) as Record<string, unknown>;
       const domain = typeof l.domain === "string" ? normalizeDomain(l.domain) : null;
       if (!domain || seen.has(domain)) continue;

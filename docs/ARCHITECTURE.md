@@ -32,8 +32,15 @@ records the slap                  ◀─ leave ──  "Get me out of here"
 - **Time counts** only while a limited site is the active tab of the focused Chrome
   window and the screen isn't locked. Watching a video without touching the mouse
   still counts.
-- **Access**: the extension asks Chrome for access to each limited site, one at a time.
-  The watcher script is registered only on those sites. Other tabs are never seen.
+- **Defaults**: new installs start with YouTube, Facebook, TikTok, Instagram, Reddit and
+  X at 5 min/day (`DEFAULT_SITES` in `packages/core/src/settings.ts`). Until the first
+  real slap, every site slaps after 1 minute (`FIRST_SLAP_MINUTES`) so new users see it
+  quickly.
+- **Access**: Chrome grants the six default sites at install (`host_permissions` in the
+  manifest, so the install prompt lists them). Any other site is requested one at a
+  time when the user adds it. The watcher script is registered only on limited sites.
+  Other tabs are never seen. Removing a default site stops tracking it, but Chrome keeps
+  the install-time access unless the user removes it in `chrome://extensions`.
 - **Storage** (`chrome.storage.local`): `settings`, plus `usage` with one row per site
   per day `{ ms, slaps }`, kept for 90 days. That's the shape that will sync to Supabase.
 - **Sign-in** runs in the service worker (`background/auth.ts`), because the popup

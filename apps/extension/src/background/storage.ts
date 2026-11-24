@@ -34,3 +34,13 @@ export async function setSession(session: ActiveSession | null): Promise<void> {
   if (session) await chrome.storage.session.set({ session });
   else await chrome.storage.session.remove("session");
 }
+
+/** When this person was first slapped for real (test slaps don't count), or null. */
+export async function getFirstSlapAt(): Promise<number | null> {
+  const { firstSlapAt } = await chrome.storage.local.get("firstSlapAt");
+  return typeof firstSlapAt === "number" ? firstSlapAt : null;
+}
+
+export async function markFirstSlap(at = Date.now()): Promise<void> {
+  if ((await getFirstSlapAt()) === null) await chrome.storage.local.set({ firstSlapAt: at });
+}

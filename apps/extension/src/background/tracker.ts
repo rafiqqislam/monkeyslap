@@ -13,7 +13,20 @@ import {
   type UsageLog,
 } from "@monkeyslap/core";
 import type { SlapPayload } from "../shared/messages";
-import { getSession, getSettings, getUsage, saveUsage, setSession } from "./storage";
+import {
+  getFirstSlapAt,
+  getSession,
+  getSettings,
+  getUsage,
+  markFirstSlap,
+  saveUsage,
+  setSession,
+} from "./storage";
+
+/** Whether this person has been slapped for real yet (see FIRST_SLAP_MINUTES). */
+export async function limitContext() {
+  return { hasBeenSlapped: (await getFirstSlapAt()) !== null };
+}
 
 /**
  * Time tracking.
@@ -104,7 +117,7 @@ export async function statusForSender(
   const { settings, usage } = await reconcile();
   const domain = domainForSender(settings, sender);
   if (!domain) return null;
-  const status = limitStatus(settings, usage, domain, Date.now());
+  const status = limitStatus(settings, usage, domain, Date.now(), await limitContext());
   return status ? { status, settings } : null;
 }
 
@@ -141,5 +154,6 @@ export async function checkForSender(
     const usage = await getUsage();
     await saveUsage(addSlap(usage, found.status.domain, Date.now()));
   });
+  await markFirstSlap();
   return payloadFor(found.settings, found.status, decision);
 }

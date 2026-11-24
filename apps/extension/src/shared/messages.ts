@@ -28,6 +28,8 @@ export interface SiteRow {
   limit: SiteLimit;
   usedMs: number;
   slaps: number;
+  /** The limit in force right now (1 min until the first slap ever). */
+  limitMs: number;
   /** Whether Chrome has granted access to this site. Without it, nothing is tracked. */
   granted: boolean;
 }
@@ -36,6 +38,8 @@ export interface Dashboard {
   settings: Settings;
   sites: SiteRow[];
   auth: AuthState;
+  /** True until the first real slap: every site slaps after 1 minute until then. */
+  firstSlapPending: boolean;
 }
 
 /** Messages sent to the background service worker. */

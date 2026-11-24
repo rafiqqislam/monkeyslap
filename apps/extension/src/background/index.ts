@@ -1,5 +1,6 @@
 import {
   clampMinutes,
+  effectiveMinutes,
   HEARTBEAT_MS,
   limitStatus,
   normalizeDomain,
@@ -22,18 +23,28 @@ import type {
 import { getAuthState, signInWithGoogle, signOut } from "./auth";
 import { hasAccess, injectIntoOpenTabs, injectWatcher, syncContentScripts } from "./scripts";
 import { getSettings, saveSettings } from "./storage";
-import { checkForSender, payloadFor, reconcile, statusForSender } from "./tracker";
+import {
+  checkForSender,
+  limitContext,
+  payloadFor,
+  reconcile,
+  statusForSender,
+} from "./tracker";
 
 const HEARTBEAT = "heartbeat";
 
-async function setup() {
+async function setup(firstInstall = false) {
   await chrome.alarms.create(HEARTBEAT, { periodInMinutes: HEARTBEAT_MS / 60_000 });
   chrome.idle.setDetectionInterval(60);
-  await syncContentScripts(await getSettings());
+  // A new install starts with the default sites; save them so they're explicit.
+  const settings = firstInstall ? await saveSettings(await getSettings()) : await getSettings();
+  await syncContentScripts(settings);
+  // Tabs that were already open before install get the watcher straight away.
+  if (firstInstall) await Promise.all(enabledDomains(settings).map(injectIntoOpenTabs));
   await reconcile();
 }
 
-chrome.runtime.onInstalled.addListener(() => void setup());
+chrome.runtime.onInstalled.addListener(({ reason }) => void setup(reason === "install"));
 chrome.runtime.onStartup.addListener(() => void setup());
 
 // Anything that might change which tab the user is looking at.
@@ -61,13 +72,20 @@ chrome.permissions.onAdded.addListener(async () => {
 async function dashboard(): Promise<Dashboard> {
   const { settings, usage } = await reconcile();
   const now = Date.now();
+  const ctx = await limitContext();
   const sites = await Promise.all(
     settings.limits.map(async (limit) => {
       const today = usageFor(usage, limit.domain, now);
-      return { limit, usedMs: today.ms, slaps: today.slaps, granted: await hasAccess(limit.domain) };
+      return {
+        limit,
+        usedMs: today.ms,
+        slaps: today.slaps,
+        limitMs: effectiveMinutes(limit.dailyMinutes, ctx) * 60_000,
+        granted: await hasAccess(limit.domain),
+      };
     }),
   );
-  return { settings, sites, auth: await getAuthState() };
+  return { settings, sites, auth: await getAuthState(), firstSlapPending: !ctx.hasBeenSlapped };
 }
 
 async function testSlap(): Promise<"page" | "demo"> {
@@ -78,7 +96,9 @@ async function testSlap(): Promise<"page" | "demo"> {
   if (tab?.id && hostFromUrl(tab.url ?? "") !== null) {
     const { usage } = await reconcile();
     const domain = matchDomain(hostFromUrl(tab.url), enabledDomains(settings));
-    const status = domain ? limitStatus(settings, usage, domain, Date.now()) : null;
+    const status = domain
+      ? limitStatus(settings, usage, domain, Date.now(), await limitContext())
+      : null;
     const msg: PageMessage = { type: "slap", payload: payloadFor(settings, status, decision, true) };
 
     const send = () => chrome.tabs.sendMessage(tab.id!, msg).then(() => true, () => false);

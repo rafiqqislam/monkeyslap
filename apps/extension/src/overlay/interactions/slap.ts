@@ -18,6 +18,14 @@ function cardFor(payload: Parameters<Interaction["run"]>[0]["payload"]): CardOpt
       primary: { label: "Ha. Got it.", choice: "stay" },
     };
   }
+  if (status?.firstSlap) {
+    return {
+      title: "SLAP! That was your first one.",
+      body: `This is what happens when you go over your limit. From now on you get ${formatDuration(status.dailyLimitMs)} a day on ${status.domain} before the monkey comes back.`,
+      primary: { label: "Get me out of here", choice: "leave" },
+      secondary: { label: `Stay (slap again in ${reslapMinutes} min)`, choice: "stay" },
+    };
+  }
   const body = status
     ? `You've spent ${formatDuration(status.usedMs)} on ${status.domain} today. Your limit is ${formatDuration(status.limitMs)}.`
     : "You've hit your daily limit for this site.";

@@ -12,6 +12,7 @@ import {
   migrateSettings,
   normalizeDomain,
   pruneUsage,
+  removeLimit,
   sessionEnd,
   upsertLimit,
   usageFor,
@@ -98,6 +99,22 @@ describe("settings", () => {
     expect(migrateSettings(undefined)).toEqual(DEFAULT_SETTINGS);
   });
 
+  it("starts new users with the six default sites at 5 min", () => {
+    expect(DEFAULT_SETTINGS.limits.map((l) => l.domain)).toEqual([
+      "youtube.com",
+      "facebook.com",
+      "tiktok.com",
+      "instagram.com",
+      "reddit.com",
+      "x.com",
+    ]);
+    expect(DEFAULT_SETTINGS.limits.every((l) => l.dailyMinutes === 5 && l.enabled)).toBe(true);
+  });
+
+  it("keeps an emptied list empty instead of restoring defaults", () => {
+    expect(migrateSettings({ limits: [] }).limits).toEqual([]);
+  });
+
   it("repairs bad values and drops duplicates", () => {
     const s = migrateSettings({
       limits: [
@@ -127,10 +144,26 @@ describe("limits and rules", () => {
     enabled: true,
   });
   const now = at(2026, 11, 23, 15);
+  const veteran = { hasBeenSlapped: true };
+  const newcomer = { hasBeenSlapped: false };
+
+  it("slaps a new user after 1 minute, then uses the normal limit", () => {
+    const log = addTime({}, "x.com", now - 61_000, now);
+    const first = limitStatus(settings, log, "x.com", now, newcomer);
+    expect(first?.limitMs).toBe(60_000);
+    expect(first?.dailyLimitMs).toBe(10 * 60_000);
+    expect(first?.firstSlap).toBe(true);
+    expect(decide(first)?.interaction).toBe("slap");
+
+    const after = limitStatus(settings, log, "x.com", now, veteran);
+    expect(after?.limitMs).toBe(10 * 60_000);
+    expect(after?.firstSlap).toBe(false);
+    expect(decide(after)).toBeNull();
+  });
 
   it("reports remaining time under the limit", () => {
     const log = addTime({}, "x.com", now - 4 * 60_000, now);
-    const status = limitStatus(settings, log, "x.com", now);
+    const status = limitStatus(settings, log, "x.com", now, veteran);
     expect(status?.remainingMs).toBe(6 * 60_000);
     expect(status?.over).toBe(false);
     expect(decide(status)).toBeNull();
@@ -138,17 +171,17 @@ describe("limits and rules", () => {
 
   it("slaps when over, harder each time", () => {
     let log = addTime({}, "x.com", now - 11 * 60_000, now);
-    expect(decide(limitStatus(settings, log, "x.com", now))).toEqual({
+    expect(decide(limitStatus(settings, log, "x.com", now, veteran))).toEqual({
       interaction: "slap",
       intensity: 1,
       slapNumber: 1,
     });
     log = addSlap(addSlap(addSlap(log, "x.com", now), "x.com", now), "x.com", now);
-    expect(decide(limitStatus(settings, log, "x.com", now))?.intensity).toBe(3);
+    expect(decide(limitStatus(settings, log, "x.com", now, veteran))?.intensity).toBe(3);
   });
 
   it("ignores sites without an enabled limit", () => {
-    expect(limitStatus(settings, {}, "reddit.com", now)).toBeNull();
+    expect(limitStatus(removeLimit(settings, "reddit.com"), {}, "reddit.com", now, veteran)).toBeNull();
   });
 });
 

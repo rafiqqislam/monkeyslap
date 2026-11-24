@@ -92,6 +92,13 @@ export function App() {
           </div>
         )}
 
+        {data.firstSlapPending && data.sites.some((s) => s.limit.enabled) && (
+          <div className="rounded-2xl border-2 border-ink bg-banana/30 px-3 py-2.5 text-sm">
+            <b>Your first slap comes after just 1 minute</b> on any of these sites, so you can see
+            what happens. After that, your normal limits apply.
+          </div>
+        )}
+
         <section aria-labelledby="today">
           <h2 id="today" className="mb-2 text-xs font-bold tracking-wide text-muted uppercase">
             Today
@@ -184,8 +191,7 @@ function SiteItem({
   onRemove: () => void;
   onGrant: () => void;
 }) {
-  const { limit, usedMs, slaps, granted } = row;
-  const limitMs = limit.dailyMinutes * 60_000;
+  const { limit, usedMs, slaps, granted, limitMs } = row;
   const pct = Math.min(100, (usedMs / limitMs) * 100);
   const over = usedMs >= limitMs;
   const bar = over ? "bg-slap" : pct >= 80 ? "bg-amber" : "bg-leaf";

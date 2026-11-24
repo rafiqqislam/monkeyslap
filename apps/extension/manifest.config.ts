@@ -1,6 +1,8 @@
 import { readFileSync, existsSync } from "node:fs";
 import { defineManifest } from "@crxjs/vite-plugin";
 import pkg from "./package.json" with { type: "json" };
+import { DEFAULT_SITES } from "../../packages/core/src/settings.ts";
+import { originPatterns } from "../../packages/core/src/domain.ts";
 
 /**
  * The public half of the extension's signing key. It pins the extension ID, so the
@@ -35,6 +37,9 @@ export default defineManifest({
   },
   permissions: ["storage", "alarms", "idle", "scripting", "activeTab", "identity"],
   // Requested one site at a time, only for the sites the user chooses to limit.
-  // Must be "*://" so it covers the "*://site/*" patterns requested at runtime.
+  // The default sites are granted at install, so they work with no extra prompt.
+  host_permissions: DEFAULT_SITES.flatMap(originPatterns),
+  // Any other site the user adds is requested one at a time. Must be "*://" so it
+  // covers the "*://site/*" patterns requested at runtime.
   optional_host_permissions: ["*://*/*"],
 });
