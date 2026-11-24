@@ -11,6 +11,8 @@ export default defineConfig({
       // Extra extension pages that aren't referenced from the manifest.
       input: {
         demo: "src/demo/index.html",
+        welcome: "src/welcome/index.html",
+        profile: "src/profile/index.html",
       },
     },
   },

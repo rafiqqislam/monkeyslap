@@ -10,10 +10,50 @@ export async function getSettings(): Promise<Settings> {
   return migrateSettings(settings);
 }
 
-export async function saveSettings(settings: Settings): Promise<Settings> {
+/**
+ * Saves settings. `updatedAt` records when they were last changed, so sync can
+ * keep the newest copy. Untouched defaults use 0, so an account's saved settings
+ * always win over a fresh install's defaults.
+ */
+export async function saveSettings(settings: Settings, updatedAt = Date.now()): Promise<Settings> {
   const clean = migrateSettings(settings);
-  await chrome.storage.local.set({ settings: clean });
+  await chrome.storage.local.set({ settings: clean, settingsUpdatedAt: updatedAt });
   return clean;
+}
+
+export async function getSettingsUpdatedAt(): Promise<number> {
+  const { settingsUpdatedAt } = await chrome.storage.local.get("settingsUpdatedAt");
+  return typeof settingsUpdatedAt === "number" ? settingsUpdatedAt : 0;
+}
+
+/** A random id for this browser, so each device keeps its own usage rows in the account. */
+export async function getDeviceId(): Promise<string> {
+  const { deviceId } = await chrome.storage.local.get("deviceId");
+  if (typeof deviceId === "string") return deviceId;
+  const id = crypto.randomUUID();
+  await chrome.storage.local.set({ deviceId: id });
+  return id;
+}
+
+export interface SyncState {
+  lastSyncAt: number | null;
+  lastError: string | null;
+  /** The earliest day not yet confirmed uploaded; null means upload everything. */
+  syncedThrough: string | null;
+}
+
+export async function getSyncState(): Promise<SyncState> {
+  const { sync } = await chrome.storage.local.get("sync");
+  const s = (sync ?? {}) as Partial<SyncState>;
+  return { lastSyncAt: s.lastSyncAt ?? null, lastError: s.lastError ?? null, syncedThrough: s.syncedThrough ?? null };
+}
+
+export async function setSyncState(patch: Partial<SyncState> | null): Promise<void> {
+  if (patch === null) {
+    await chrome.storage.local.remove("sync");
+    return;
+  }
+  await chrome.storage.local.set({ sync: { ...(await getSyncState()), ...patch } });
 }
 
 export async function getUsage(): Promise<UsageLog> {

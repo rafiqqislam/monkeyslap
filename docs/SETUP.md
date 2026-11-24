@@ -30,7 +30,18 @@ lost, the Web Store gives the extension a new ID and the URLs below have to be u
 2. Under **Project Settings → API**, copy the **Project URL** and the **publishable key**.
 3. Copy `apps/extension/.env.example` to `apps/extension/.env` and paste both in.
 
-## 2. Create the Google OAuth client
+## 2. Create the database tables
+
+Signed-in users' sites, limits and daily totals are backed up to two tables.
+
+1. In Supabase, open **SQL Editor → New query**.
+2. Paste the contents of [`supabase/migrations/0001_sync.sql`](../supabase/migrations/0001_sync.sql)
+   and click **Run**.
+
+This also turns on Row Level Security, so each user can only read and change their
+own rows. It's safe to run again.
+
+## 3. Create the Google OAuth client
 
 In [Google Cloud Console](https://console.cloud.google.com):
 
@@ -46,22 +57,27 @@ In [Google Cloud Console](https://console.cloud.google.com):
      **Authentication → Sign In / Providers → Google**. It looks like
      `https://<your-project-ref>.supabase.co/auth/v1/callback`.
 4. Copy the **Client ID** and **Client secret**.
+5. While the consent screen is in **Testing**, only Google accounts you add under
+   **Audience → Test users** can sign in (up to 100). Click **Publish app** before the
+   public launch. With only email, profile and openid scopes, publishing doesn't need
+   Google's full verification.
 
-## 3. Connect them in Supabase
+## 4. Connect them in Supabase
 
 1. **Authentication → Sign In / Providers → Google**: turn it on and paste the Client ID
    and secret.
 2. **Authentication → URL Configuration → Redirect URLs**: add
    `https://iedbmepibcfeilbcepbjjoonjjoppkbg.chromiumapp.org/**`
 
-## 4. Rebuild and try it
+## 5. Rebuild and try it
 
 ```bash
 npm run build
 ```
 
 Reload the extension in `chrome://extensions`, open the popup and click **Sign in with
-Google**.
+Google**. The popup footer then shows "✓ Backed up just now", and rows appear in the
+`user_settings` and `daily_usage` tables in Supabase's **Table Editor**.
 
 ## Adding Apple later
 

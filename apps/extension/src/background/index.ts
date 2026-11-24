@@ -1,6 +1,7 @@
 import {
   clampMinutes,
   effectiveMinutes,
+  lastDays,
   HEARTBEAT_MS,
   limitStatus,
   normalizeDomain,
@@ -18,11 +19,13 @@ import type {
   PageMessage,
   Request,
   Result,
+  Stats,
   StatusResponse,
 } from "../shared/messages";
 import { getAuthState, signInWithGoogle, signOut } from "./auth";
 import { hasAccess, injectIntoOpenTabs, injectWatcher, syncContentScripts } from "./scripts";
-import { getSettings, saveSettings } from "./storage";
+import { getSettings, getSyncState, saveSettings } from "./storage";
+import { resetSync, SYNC_ALARM, SYNC_EVERY_MINUTES, syncNow } from "./sync";
 import {
   checkForSender,
   limitContext,
@@ -35,12 +38,27 @@ const HEARTBEAT = "heartbeat";
 
 async function setup(firstInstall = false) {
   await chrome.alarms.create(HEARTBEAT, { periodInMinutes: HEARTBEAT_MS / 60_000 });
+  await chrome.alarms.create(SYNC_ALARM, { periodInMinutes: SYNC_EVERY_MINUTES });
   chrome.idle.setDetectionInterval(60);
-  // A new install starts with the default sites; save them so they're explicit.
-  const settings = firstInstall ? await saveSettings(await getSettings()) : await getSettings();
+  // A new install starts with the default sites. Saved with time 0 ("never
+  // edited"), so settings from an existing account win when the user signs in.
+  const settings = firstInstall ? await saveSettings(await getSettings(), 0) : await getSettings();
   await syncContentScripts(settings);
   // Tabs that were already open before install get the watcher straight away.
   if (firstInstall) await Promise.all(enabledDomains(settings).map(injectIntoOpenTabs));
+  await reconcile();
+  if (firstInstall) {
+    await chrome.tabs.create({ url: chrome.runtime.getURL("src/welcome/index.html") });
+  } else {
+    void syncNow(applySettings);
+  }
+}
+
+/** Re-applies settings after they change outside the popup (e.g. pulled from the account). */
+async function applySettings() {
+  const settings = await getSettings();
+  await syncContentScripts(settings);
+  await Promise.all(enabledDomains(settings).map(injectIntoOpenTabs));
   await reconcile();
 }
 
@@ -49,7 +67,10 @@ chrome.runtime.onStartup.addListener(() => void setup());
 
 // Anything that might change which tab the user is looking at.
 const touch = () => void reconcile();
-chrome.alarms.onAlarm.addListener((a) => a.name === HEARTBEAT && touch());
+chrome.alarms.onAlarm.addListener((a) => {
+  if (a.name === HEARTBEAT) touch();
+  if (a.name === SYNC_ALARM) void reconcile().then(() => syncNow(applySettings));
+});
 chrome.tabs.onActivated.addListener(touch);
 chrome.tabs.onRemoved.addListener(touch);
 chrome.tabs.onUpdated.addListener((_id, change) => {
@@ -85,7 +106,14 @@ async function dashboard(): Promise<Dashboard> {
       };
     }),
   );
-  return { settings, sites, auth: await getAuthState(), firstSlapPending: !ctx.hasBeenSlapped };
+  const auth = await getAuthState();
+  const sync = await getSyncState();
+  return {
+    settings,
+    sites,
+    auth: { ...auth, lastSyncAt: auth.user ? sync.lastSyncAt : null, syncError: auth.user ? sync.lastError : null },
+    firstSlapPending: !ctx.hasBeenSlapped,
+  };
 }
 
 async function testSlap(): Promise<"page" | "demo"> {
@@ -145,6 +173,7 @@ async function handle(req: Request, sender: chrome.runtime.MessageSender): Promi
       const saved = await saveSettings(req.settings);
       await syncContentScripts(saved);
       await reconcile();
+      void syncNow(applySettings);
       return dashboard();
     }
     case "addSite": {
@@ -159,20 +188,36 @@ async function handle(req: Request, sender: chrome.runtime.MessageSender): Promi
       );
       await syncContentScripts(settings);
       await injectIntoOpenTabs(domain);
+      void syncNow(applySettings);
       return dashboard();
     }
     case "removeSite": {
       const settings = await saveSettings(removeLimit(await getSettings(), req.domain));
       await syncContentScripts(settings);
       await chrome.permissions.remove({ origins: originPatterns(req.domain) }).catch(() => false);
+      void syncNow(applySettings);
       return dashboard();
     }
     case "testSlap":
       return testSlap();
-    case "signIn":
-      return signInWithGoogle();
-    case "signOut":
-      return signOut();
+    case "stats": {
+      const { usage } = await reconcile();
+      const res: Stats = { days: lastDays(usage, Date.now(), Math.min(90, Math.max(1, req.days))) };
+      return res;
+    }
+    case "signIn": {
+      const auth = await signInWithGoogle();
+      // New account on this device: upload everything, and pull saved settings.
+      await resetSync();
+      await reconcile();
+      await syncNow(applySettings);
+      return auth;
+    }
+    case "signOut": {
+      const auth = await signOut();
+      await resetSync();
+      return auth;
+    }
   }
 }
 

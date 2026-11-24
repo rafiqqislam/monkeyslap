@@ -8,6 +8,7 @@ import {
 } from "@monkeyslap/core";
 import { useCallback, useEffect, useState } from "react";
 import iconUrl from "../../assets/icon.svg";
+import { GoogleLogo } from "../shared/GoogleLogo";
 import { ask, type AuthState, type Dashboard, type SiteRow } from "../shared/messages";
 
 /** Asks Chrome for access to a site. Must be the first thing a click handler does. */
@@ -166,14 +167,21 @@ function Header({ auth }: { auth: AuthState }) {
         <h1 className="text-lg leading-tight font-black">MonkeySlap</h1>
         <p className="text-xs text-muted">Scroll less, or get slapped.</p>
       </div>
-      {auth.user?.avatarUrl && (
-        <img
-          src={auth.user.avatarUrl}
-          alt={auth.user.name ?? "Your account"}
-          referrerPolicy="no-referrer"
-          className="size-8 rounded-full border-2 border-ink"
-        />
-      )}
+      <button
+        type="button"
+        onClick={() => void chrome.tabs.create({ url: chrome.runtime.getURL("src/profile/index.html") })}
+        title="Your profile and stats"
+        className="flex shrink-0 items-center gap-1.5 rounded-full border-2 border-line bg-white py-0.5 pr-2.5 pl-0.5 text-xs font-bold hover:border-ink"
+      >
+        {auth.user?.avatarUrl ? (
+          <img src={auth.user.avatarUrl} alt="" referrerPolicy="no-referrer" className="size-6 rounded-full" />
+        ) : (
+          <span aria-hidden className="grid size-6 place-items-center rounded-full bg-sand text-sm">
+            📊
+          </span>
+        )}
+        Profile
+      </button>
     </header>
   );
 }
@@ -405,13 +413,16 @@ function AccountFooter({
   return (
     <footer className="border-t border-line bg-sand/60 px-4 py-3 text-xs">
       {auth.user ? (
-        <div className="flex items-center justify-between gap-2">
-          <span className="min-w-0 truncate">
-            Signed in as <b>{auth.user.email ?? auth.user.name}</b>
-          </span>
-          <button type="button" onClick={onSignOut} disabled={busy} className="shrink-0 font-bold underline">
-            Sign out
-          </button>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center justify-between gap-2">
+            <span className="min-w-0 truncate">
+              Signed in as <b>{auth.user.email ?? auth.user.name}</b>
+            </span>
+            <button type="button" onClick={onSignOut} disabled={busy} className="shrink-0 font-bold underline">
+              Sign out
+            </button>
+          </div>
+          <SyncStatus auth={auth} />
         </div>
       ) : (
         <div className="flex flex-col gap-2">
@@ -426,7 +437,7 @@ function AccountFooter({
           </button>
           <p className="text-center text-muted">
             {auth.configured
-              ? "Optional. Sign in to keep your progress across devices."
+              ? "Optional. Sign in to back up your sites and progress."
               : "Sign-in isn't set up yet. Everything else works without it."}
           </p>
         </div>
@@ -463,13 +474,16 @@ function Toggle({
   );
 }
 
-function GoogleLogo() {
-  return (
-    <svg viewBox="0 0 48 48" className="size-4" aria-hidden>
-      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z" />
-      <path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
-      <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z" />
-      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z" />
-    </svg>
-  );
+function SyncStatus({ auth }: { auth: AuthState }) {
+  if (auth.syncError) {
+    return (
+      <span className="text-slap" title={auth.syncError}>
+        Couldn't back up. Will try again soon.
+      </span>
+    );
+  }
+  if (!auth.lastSyncAt) return <span className="text-muted">Backing up…</span>;
+  const mins = Math.floor((Date.now() - auth.lastSyncAt) / 60_000);
+  const ago = mins < 1 ? "just now" : mins < 60 ? `${mins} min ago` : `${Math.floor(mins / 60)} h ago`;
+  return <span className="text-muted">✓ Backed up {ago}</span>;
 }

@@ -1,4 +1,4 @@
-import type { Decision, LimitStatus, Settings, SiteLimit } from "@monkeyslap/core";
+import type { DaySummary, Decision, LimitStatus, Settings, SiteLimit } from "@monkeyslap/core";
 
 /** Everything the slap overlay needs to run, sent from the background to a page. */
 export interface SlapPayload {
@@ -22,6 +22,10 @@ export interface AuthState {
   /** False until Supabase keys are added (see docs/SETUP.md). */
   configured: boolean;
   user: AuthUser | null;
+  /** When this device last backed up to the account (signed in only). */
+  lastSyncAt?: number | null;
+  /** The last sync problem, if the most recent attempt failed. */
+  syncError?: string | null;
 }
 
 export interface SiteRow {
@@ -42,6 +46,11 @@ export interface Dashboard {
   firstSlapPending: boolean;
 }
 
+export interface Stats {
+  /** The last N days, oldest first, ending today. */
+  days: DaySummary[];
+}
+
 /** Messages sent to the background service worker. */
 export type Request =
   // From the page watcher (the site is taken from the sender, never from the message)
@@ -55,7 +64,9 @@ export type Request =
   | { type: "removeSite"; domain: string }
   | { type: "testSlap" }
   | { type: "signIn" }
-  | { type: "signOut" };
+  | { type: "signOut" }
+  // From the profile page
+  | { type: "stats"; days: number };
 
 export type StatusResponse =
   | { tracked: false }
