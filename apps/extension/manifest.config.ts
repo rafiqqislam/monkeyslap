@@ -35,5 +35,6 @@ export default defineManifest({
   },
   permissions: ["storage", "alarms", "idle", "scripting", "activeTab", "identity"],
   // Requested one site at a time, only for the sites the user chooses to limit.
-  optional_host_permissions: ["https://*/*", "http://*/*"],
+  // Must be "*://" so it covers the "*://site/*" patterns requested at runtime.
+  optional_host_permissions: ["*://*/*"],
 });
