@@ -11,10 +11,15 @@ apps/
 packages/
   core/             Platform-free rules: limits, usage, sessions, what happens at the limit
   characters/       The character contract, the monkey pack, and the renderers that animate it
+site/               The website at https://monkeyslap.lol (homepage, privacy, support)
 docs/
   ARCHITECTURE.md   How the pieces fit, and how to swap the monkey or add features
   SETUP.md          Supabase + Google sign-in setup
+  store/            Chrome Web Store listing text and images
 ```
+
+The website is plain HTML in `site/`. Cloudflare Pages publishes it to
+`monkeyslap.lol` automatically whenever `site/` changes on `main`.
 
 ## Run it
 

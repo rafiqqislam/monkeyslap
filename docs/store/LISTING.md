@@ -50,15 +50,15 @@ PRIVATE BY DEFAULT
 • Signing in with Google is optional. It backs up your settings and history so you can use them on another computer.
 • No ads, no tracking, no selling data.
 
-Privacy policy: https://rafiqqislam.github.io/monkeyslap/privacy/
+Privacy policy: https://monkeyslap.lol/privacy/
 ```
 
 **Screenshots** (1280×800): `images/screenshot-1-slap.png` … `screenshot-4-welcome.png`, in that order.
 **Small promo tile** (440×280): `images/promo-small-440x280.png`
 **Store icon** (128×128): `apps/extension/public/icons/icon-128.png`
 
-**Official URL / Homepage:** `https://rafiqqislam.github.io/monkeyslap/`
-**Support URL:** `https://rafiqqislam.github.io/monkeyslap/support/`
+**Official URL / Homepage:** `https://monkeyslap.lol/`
+**Support URL:** `https://monkeyslap.lol/support/`
 
 ---
 
@@ -135,7 +135,7 @@ Then tick all three certifications:
 
 **Privacy policy URL:**
 ```
-https://rafiqqislam.github.io/monkeyslap/privacy/
+https://monkeyslap.lol/privacy/
 ```
 
 ---
