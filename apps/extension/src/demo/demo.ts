@@ -49,9 +49,9 @@ async function slap() {
     decision: { interaction: "slap", intensity, slapNumber: slapCount },
     status: {
       domain: "endlessfeed.example",
-      usedMs: 30 * 60_000 + slapCount * 3 * 60_000,
-      limitMs: 30 * 60_000,
-      dailyLimitMs: 30 * 60_000,
+      usedMs: 5 * 60_000 + slapCount * 60_000,
+      limitMs: 5 * 60_000,
+      dailyLimitMs: 5 * 60_000,
       remainingMs: 0,
       over: true,
       slapsToday: slapCount - 1,

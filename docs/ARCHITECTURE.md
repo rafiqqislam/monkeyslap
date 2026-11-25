@@ -32,11 +32,11 @@ records the slap                  ◀─ leave ──  "Get me out of here"
 - **Time counts** only while a limited site is the active tab of the focused Chrome
   window and the screen isn't locked. Watching a video without touching the mouse
   still counts.
-- **Defaults**: new installs start with YouTube, Facebook, TikTok, Instagram, Reddit and
-  X at 5 min/day (`DEFAULT_SITES` in `packages/core/src/settings.ts`). Until the first
+- **Defaults**: new installs start with YouTube, Facebook, TikTok, Instagram, Reddit, X
+  and LinkedIn at 5 min/day (`DEFAULT_SITES` in `packages/core/src/settings.ts`). Until the first
   real slap, every site slaps after 1 minute (`FIRST_SLAP_MINUTES`) so new users see it
   quickly.
-- **Access**: Chrome grants the six default sites at install (`host_permissions` in the
+- **Access**: Chrome grants the seven default sites at install (`host_permissions` in the
   manifest, so the install prompt lists them). Any other site is requested one at a
   time when the user adds it. The watcher script is registered only on limited sites.
   Other tabs are never seen. Removing a default site stops tracking it, but Chrome keeps

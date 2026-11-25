@@ -334,6 +334,7 @@ function AddSite({
           Add
         </button>
       </form>
+      <p className="text-xs text-muted">Chrome will ask your permission for each site you add, for that site only.</p>
       {suggestions.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {suggestions.map((s) => (

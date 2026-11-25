@@ -73,10 +73,11 @@ export function Welcome() {
             After that, the monkey waits for your real limit.
           </p>
         </Card>
-        <Card n={3} title="Change it any time">
+        <Card n={3} title="You decide the rest">
           <p className="mt-1 text-sm text-muted">
-            Click the puzzle piece in Chrome's toolbar and <b className="text-ink">pin MonkeySlap</b>. Its menu lets you
-            change limits, add sites or switch them off.
+            Click the puzzle piece in Chrome's toolbar and <b className="text-ink">pin MonkeySlap</b> to change limits
+            or switch sites off. <b className="text-ink">Want another site limited?</b> Add it there, and Chrome asks
+            your permission for that site only. MonkeySlap never sees any other site.
           </p>
         </Card>
       </section>

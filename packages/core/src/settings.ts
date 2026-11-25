@@ -30,6 +30,7 @@ export const DEFAULT_SITES = [
   "instagram.com",
   "reddit.com",
   "x.com",
+  "linkedin.com",
 ] as const;
 
 /** Shown as one-click buttons in the popup when not already in the list. */

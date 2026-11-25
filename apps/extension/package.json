@@ -6,9 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "zip": "vite build && cd dist && zip -qr ../monkeyslap-extension.zip .",
     "icons": "node scripts/make-icons.mjs",
-    "key": "node scripts/make-key.mjs"
+    "key": "node scripts/make-key.mjs",
+    "store": "vite build && node scripts/make-store-zip.mjs",
+    "store:first": "vite build && node scripts/make-store-zip.mjs --first"
   },
   "dependencies": {
     "@monkeyslap/characters": "*",

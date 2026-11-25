@@ -99,7 +99,7 @@ describe("settings", () => {
     expect(migrateSettings(undefined)).toEqual(DEFAULT_SETTINGS);
   });
 
-  it("starts new users with the six default sites at 5 min", () => {
+  it("starts new users with the seven default sites at 5 min", () => {
     expect(DEFAULT_SETTINGS.limits.map((l) => l.domain)).toEqual([
       "youtube.com",
       "facebook.com",
@@ -107,6 +107,7 @@ describe("settings", () => {
       "instagram.com",
       "reddit.com",
       "x.com",
+      "linkedin.com",
     ]);
     expect(DEFAULT_SETTINGS.limits.every((l) => l.dailyMinutes === 5 && l.enabled)).toBe(true);
   });
